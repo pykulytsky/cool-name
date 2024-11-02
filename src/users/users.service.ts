@@ -11,12 +11,22 @@ const db = drizzle(process.env.DATABASE_URL!);
 @Injectable()
 export class UsersService {
   async create(user: CreateUserDto) {
-    return await db.insert(usersTable).values(user);
+    return await db.insert(usersTable).values(user).returning().then(res => res[0]);
   }
 
   async findOne(id: number) {
     return await db
-      .select({ id: eq(usersTable.id, id) })
+      .select()
       .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .then(res => res[0])
+  }
+
+  async findByUsername(username: string) {
+    return await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.username, username))
+      .then(res => res[0])
   }
 }
